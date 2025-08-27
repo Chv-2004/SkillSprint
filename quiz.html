@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillSprint - Quiz</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .quiz-container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+    .quiz-container h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+    .question {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    .options label {
+      display: block;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .options label:hover {
+      background: var(--accent);
+      color: white;
+    }
+    .options label.correct {
+      border-color: #22c55e;
+      background-color: #f0fdf4;
+      color: #166534;
+      font-weight: 600;
+    }
+    .options label.incorrect {
+      border-color: #ef4444;
+      background-color: #fef2f2;
+      color: #991b1b;
+    }
+    #submit-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #submit-btn:disabled {
+      background-color: var(--gray);
+      cursor: not-allowed;
+    }
+    #retry-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: none; /* Initially hidden */
+      margin-left: 10px;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--secondary);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SkillSprint Quiz</h1>
+    <nav>
+      <a href="index.html#home">Home</a>
+      <a href="index.html#courses">Courses</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="index.html#about">About</a>
+    </nav>
+  </header>
+  <main>
+    <div class="quiz-container">
+      <label for="course-select">Choose a Course:</label>
+      <select id="course-select">
+        <option value="html">HTML</option>
+        <option value="css">CSS</option>
+        <option value="js">JavaScript</option>
+        <option value="c">C</option>
+        <option value="cpp">C++</option>
+        <option value="java">Java</option>
+        <option value="python">Python</option>
+        <option value="ai">AI</option>
+      </select>
+      <h2 id="quiz-title">Loading Quiz...</h2>
+      <div id="quiz-box"></div>
+      <button id="submit-btn">Submit Quiz</button>
+      <button id="retry-btn">Try Again</button>
+      <div id="result"></div>
+    </div>
+  </main>
+  <script>
+    const quizzes = {
+      html: [
+        {question: "What does HTML stand for?", options: ["Hyper Trainer Marking Language", "Hyper Text Markup Language", "High Text Machine Language", "Hyper Tabular Markup Language"], answer: "Hyper Text Markup Language"},
+        {question: "Which tag is used to create a hyperlink in HTML?", options: ["<a>", "<link>", "<href>", "<url>"], answer: "<a>"},
+        {question: "Which attribute is used to provide an image path?", options: ["src", "alt", "href", "link"], answer: "src"},
+        {question: "What is the correct HTML tag for the largest heading?", options: ["<h1>", "<h6>", "<heading>", "<head>"], answer: "<h1>"},
+        {question: "Which tag creates a line break?", options: ["<break>", "<lb>", "<br>", "<newline>"], answer: "<br>"}
+      ],
+      css: [
+        {question: "What does CSS stand for?", options: ["Cascading Style Sheets", "Computer Style Sheets", "Creative Style Syntax", "Colorful Style Sheets"], answer: "Cascading Style Sheets"},
+        {question: "Which property is used to change text color?", options: ["font-color", "color", "text-color", "background-color"], answer: "color"},
+        {question: "Which symbol is used for class selectors?", options: [".", "#", "*", "&"], answer: "."},
+        {question: "How do you center text using CSS?", options: ["text-align: middle;", "align: center;", "text-align: center;", "center: text;"], answer: "text-align: center;"},
+        {question: "Which CSS property controls the text size?", options: ["font-style", "text-size", "font-size", "size"], answer: "font-size"}
+      ],
+      js: [
+        {question: "Which keyword declares a variable in JavaScript?", options: ["var", "int", "string", "declare"], answer: "var"},
+        {question: "What is used to output text in JavaScript?", options: ["print()", "console.log()", "echo()", "write()"], answer: "console.log()"},
+        {question: "JavaScript is a ___ language.", options: ["compiled", "markup", "programming", "scripting"], answer: "scripting"},
+        {question: "Which symbol is used for comments in JavaScript?", options: ["//", "#", "&lt;!-- --&gt;", "/* */"], answer: "//"},
+        {question: "Which operator is used for addition?", options: ["+", "*", "&", "%"], answer: "+"}
+      ],
+      c: [
+        {question: "Who is the father of C language?", options: ["James Gosling", "Dennis Ritchie", "Bjarne Stroustrup", "Guido van Rossum"], answer: "Dennis Ritchie"},
+        {question: "Which symbol ends a statement in C?", options: [".", ":", ";", ","], answer: ";"},
+        {question: "Which function prints output to screen?", options: ["scanf()", "print()", "printf()", "write()"], answer: "printf()"},
+        {question: "C is a ___ level language.", options: ["low", "high", "middle", "machine"], answer: "middle"},
+        {question: "Which header file includes standard I/O functions?", options: ["conio.h", "stdio.h", "math.h", "string.h"], answer: "stdio.h"}
+      ],
+      cpp: [
+        {question: "Who developed C++?", options: ["Dennis Ritchie", "Bjarne Stroustrup", "James Gosling", "Anders Hejlsberg"], answer: "Bjarne Stroustrup"},
+        {question: "C++ supports which programming paradigm?", options: ["Object-Oriented", "Procedural", "Both", "None"], answer: "Both"},
+        {question: "Which symbol is used to declare a class?", options: ["class", "struct", "object", "new"], answer: "class"},
+        {question: "Which operator is used to access class members?", options: [".", ":", "->", "#"], answer: "."},
+        {question: "Which of these is a correct comment in C++?", options: ["# comment", "// comment", "<!-- comment -->", "% comment"], answer: "// comment"}
+      ],
+      java: [
+        {question: "Java was developed by?", options: ["Sun Microsystems", "Microsoft", "Apple", "Google"], answer: "Sun Microsystems"},
+        {question: "Which method is the entry point of a Java program?", options: ["start()", "main()", "init()", "run()"], answer: "main()"},
+        {question: "Which keyword is used to create an object?", options: ["create", "class", "object", "new"], answer: "new"},
+        {question: "Java is ___ typed language.", options: ["dynamically", "loosely", "strongly", "barely"], answer: "strongly"},
+        {question: "Which file extension is used for Java source code?", options: [".java", ".jav", ".js", ".class"], answer: ".java"}
+      ],
+      python: [
+        {question: "Python was created by?", options: ["Larry Page", "Guido van Rossum", "Brendan Eich", "Elon Musk"], answer: "Guido van Rossum"},
+        {question: "Which symbol is used for comments in Python?", options: ["//", "#", "/* */", "--"], answer: "#"},
+        {question: "What data type is the result of 5 / 2 in Python 3?", options: ["int", "float", "string", "bool"], answer: "float"},
+        {question: "Which function is used to get input from the user?", options: ["input()", "scan()", "get()", "enter()"], answer: "input()"},
+        {question: "Which of the following is a list in Python?", options: ["{1,2,3}", "(1,2,3)", "[1,2,3]", "<1,2,3>"], answer: "[1,2,3]"}
+      ],
+      ai: [
+        {question: "What does AI stand for?", options: ["Automated Intelligence", "Artificial Intelligence", "Algorithmic Intelligence", "Associated Intelligence"], answer: "Artificial Intelligence"},
+        {question: "Which of these is a subfield of AI?", options: ["Machine Learning", "Web Development", "Database Management", "Network Security"], answer: "Machine Learning"},
+        {question: "Who is often called the 'father of AI'?", options: ["Alan Turing", "John McCarthy", "Geoffrey Hinton", "Yann LeCun"], answer: "John McCarthy"},
+        {question: "What is the goal of a 'Turing Test'?", options: ["To test a machine's processing speed", "To test a machine's ability to exhibit intelligent behavior equivalent to, or indistinguishable from, that of a human", "To test a machine's memory capacity", "To test a machine's ability to write code"], answer: "To test a machine's ability to exhibit intelligent behavior equivalent to, or indistinguishable from, that of a human"},
+        {question: "What does 'NLP' stand for in the context of AI?", options: ["Natural Language Processing", "Neural Link Protocol", "Non-linear Programming", "Network Layer Protocol"], answer: "Natural Language Processing"}
+      ]
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    let course = params.get('course') || 'html';
+    document.getElementById('course-select').value = course;
+    document.getElementById('course-select').addEventListener('change', (e) => {
+      const selected = e.target.value;
+      window.location.search = '?course=' + selected;
+    });
+    const quizData = quizzes[course];
+    document.getElementById("quiz-title").innerText = course.toUpperCase() + " Quiz";
+
+    const quizBox = document.getElementById("quiz-box");
+    quizData.forEach((q, i) => {
+      const questionContainer = document.createElement("div");
+
+      const questionDiv = document.createElement("div");
+      questionDiv.className = "question";
+      questionDiv.textContent = `${i + 1}. ${q.question}`;
+      questionContainer.appendChild(questionDiv);
+
+      const optionsDiv = document.createElement("div");
+      optionsDiv.className = "options";
+      q.options.forEach(opt => {
+        const label = document.createElement("label");
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `q${i}`;
+        radio.value = opt;
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(' ' + opt));
+        optionsDiv.appendChild(label);
+      });
+      questionContainer.appendChild(optionsDiv);
+      quizBox.appendChild(questionContainer);
+    });
+
+    document.getElementById("submit-btn").addEventListener("click", (event) => {
+      const retryBtn = document.getElementById("retry-btn");
+      let score = 0;
+
+      quizData.forEach((q, i) => {
+        const selectedRadio = quizBox.querySelector(`input[name=q${i}]:checked`);
+        const allOptionRadios = quizBox.querySelectorAll(`input[name=q${i}]`);
+
+        allOptionRadios.forEach(radio => {
+          radio.disabled = true; // Disable all options for this question
+          const label = radio.parentElement;
+          if (radio.value === q.answer) {
+            label.classList.add('correct'); // Always highlight the correct answer
+          }
+        });
+
+        if (selectedRadio) {
+          if (selectedRadio.value === q.answer) {
+            score++;
+          } else {
+            selectedRadio.parentElement.classList.add('incorrect'); // Highlight the user's wrong choice
+          }
+        }
+      });
+
+      // Disable the submit button to prevent re-submission
+      event.target.disabled = true;
+      retryBtn.style.display = 'inline-block';
+
+      const total = quizData.length;
+      let feedback = "";
+      const percentage = (score / total) * 100;
+      if (percentage === 100) {
+        feedback = "🌟 Excellent! Perfect Score!";
+      } else if (percentage >= 80) {
+        feedback = "✅ Great job! Keep it up!";
+      } else if (percentage >= 50) {
+        feedback = "👍 Good effort. Try again to improve!";
+      } else {
+        feedback = "😓 Needs improvement. Don't give up!";
+      }
+      document.getElementById("result").innerText = `You scored ${score} out of ${total}.\n${feedback}`;
+    });
+
+    document.getElementById("retry-btn").addEventListener("click", () => {
+      const submitBtn = document.getElementById("submit-btn");
+      const retryBtn = document.getElementById("retry-btn");
+      const resultDiv = document.getElementById("result");
+      const allRadios = quizBox.querySelectorAll('input[type="radio"]');
+
+      // Reset result text and buttons
+      resultDiv.innerText = "";
+      submitBtn.disabled = false;
+      retryBtn.style.display = 'none';
+
+      // Reset all radio buttons and labels
+      allRadios.forEach(radio => {
+        radio.checked = false;
+        radio.disabled = false;
+        const label = radio.parentElement;
+        label.classList.remove('correct', 'incorrect');
+      });
+    });
+  </script>
+</body>
+</html> 
